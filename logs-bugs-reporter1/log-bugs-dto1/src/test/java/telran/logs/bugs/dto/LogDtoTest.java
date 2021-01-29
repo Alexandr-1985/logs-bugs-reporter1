@@ -32,13 +32,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // анотация чтобы попасть в апликоционный контекст
 @AutoConfigureMockMvc
 //нам нужно создать rest controller и  запустить 
-@WebMvcTest(LogDtoTest.TestController.class)
+@WebMvcTest(LogDtoTest.TestController.class) // what classes are tested
 //имитация апликационнного контекста для ТЕСТОВ
-@ContextConfiguration(classes = LogDtoTest.TestController.class)
+@ContextConfiguration(classes = LogDtoTest.TestController.class) // what classes will be in AC
 
 public class LogDtoTest {
 //"" - пустая строка
-// внутренний тест, нис=xего не связано с реальным контекстом
+// внутренний тест, ничего не связано с реальным контекстом
 	public static @RestController class TestController {
 		// мы проверяем как этот JSON который будет получен из dto будет передан и
 		// получен
@@ -47,8 +47,8 @@ public class LogDtoTest {
 
 		// @Valid говорит что spring будет проверять мой logDto в соответствии с
 		@PostMapping("/")
-		void testPost(@RequestBody @Valid LogDto logDto) {
-//анотация что есть в LogDto
+		void testPost(@RequestBody @Valid LogDto logDto) { // анотация что есть в LogDto
+
 			assertEquals(logDtoExp, logDto);
 		}
 	}
@@ -67,12 +67,11 @@ public class LogDtoTest {
 	// теперь метод тест запускаем через mocMVC, посылаем и говорим какие тесты
 	// возможны
 	// TestController.logDtoExp.dateTime = null;
-	// 200 возврат ошибки
-	// делаем post запрос. добавляем контент(медиаТайп)
 	@Test
 	void testPostRun() throws JsonProcessingException, Exception {
-		assertEquals(200,
-				mock.perform(post("/").contentType(MediaType.APPLICATION_JSON)
+		assertEquals(200, // 200 возврат ошибки
+				mock.perform(post("/").contentType(MediaType.APPLICATION_JSON) // делаем post запрос. добавляем
+																				// контент(медиаТайп)
 						.content(mapper.writeValueAsString(TestController.logDtoExp))).andReturn().getResponse()
 						.getStatus()); // контент который мы получаем из logDtoExp который я предаю
 	}
