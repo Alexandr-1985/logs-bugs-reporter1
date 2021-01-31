@@ -3,21 +3,21 @@ package telran.logs.bugs;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.binder.test.*;
+import org.springframework.cloud.stream.binder.test.InputDestination;
+import org.springframework.cloud.stream.binder.test.OutputDestination;
+import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 
 import telran.logs.bugs.dto.LogDto;
@@ -44,9 +44,9 @@ public class LogsDbPopulatorTest {
 	}
 
 	@Test
-	void takeLogDtoAndSaveNormal() {
+	void takeLogDtoAndSaveNormal() { // в
 		LogDto logDto = new LogDto(new Date(), LogType.NO_EXCEPTION, "artifact", 0, "");
-		sendLog(logDto);
+		sendLog(logDto); // в базу данных запишется один лог
 		List<LogDoc> logDocs = logsRepo.findAll();
 		assertEquals(1, logDocs.size());
 		assertEquals(logDto, logDocs.get(0).getLogDto());
@@ -63,18 +63,18 @@ public class LogsDbPopulatorTest {
 		List<LogDoc> logDocs = logsRepo.findAll();
 		assertEquals(1, logDocs.size());
 		LogDto logDto = logDocs.get(0).getLogDto();
-		assertEquals(LogType.BAD_REQUEST_EXCEPTION, logDto.logType);
+		assertEquals(LogType.BAD_REQUEST_EXCEPTION, logDto.logType); // для ненормального запишется
+																		// BAD_REQUEST_EXCEPTION,
 		assertEquals(LogsDbPopulatorAppl.class.getCanonicalName(), logDto.artifact);
 		assertEquals(0, logDto.responseTime);
-		assertFalse(logDto.result.isEmpty());
+		assertFalse(logDto.result.isEmpty()); // и главное чтобы лог был не пустой
 		try {
 			String exceptionLogStr = new String(output.receive(0, bindingName).getPayload());
 			LOG.debug("exception log: {} sent to binding name: {} ", exceptionLogStr, bindingName);
 		} catch (Exception e) {
 			fail("No sent exception log to binding name: " + bindingName);
 		}
-		
-		
+
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class LogsDbPopulatorTest {
 	}
 
 	private void sendLog(LogDto logDto) {
-		
+
 		input.send(new GenericMessage<LogDto>(logDto));
 	}
 }
